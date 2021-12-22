@@ -100,6 +100,17 @@ jobs:
             snaps: "core universal-ctags",
             make-target: "abi-check"
           }
+          - {
+            name: "Performance test - Release, Ubuntu 18.04, clang",
+            os: "ubuntu-18.04",
+            build-type: "Release",
+            dep-build-type: "Release",
+            cc: "clang",
+            options: "-DENABLE_TESTS=ON -DENABLE_PERF_TESTS=ON",
+            packages: "libcmocka-dev",
+            snaps: "",
+            make-target: ""
+          }
     env:
       UBSAN_OPTIONS: ${{ matrix.config.ubsan-options }}
 
@@ -160,4 +171,10 @@ jobs:
       - name: Test
         shell: bash
         working-directory: ${{ github.workspace }}/build
-        run: ctest --output-on-failure
+        run: ctest -E sr_perf --output-on-failure
+
+      - name: Performance Test
+        if: ${{ startsWith(matrix.config.name, 'Performance') }}
+        shell: bash
+        working-directory: ${{ github.workspace }}/build
+        run: ctest -R sr_perf -V --output-on-failure
